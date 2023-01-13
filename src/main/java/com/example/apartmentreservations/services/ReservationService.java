@@ -1,10 +1,15 @@
 package com.example.apartmentreservations.services;
 
+import com.example.apartmentreservations.models.Apartment;
 import com.example.apartmentreservations.models.Reservation;
 import com.example.apartmentreservations.entity.ReservationEntity;
+import com.example.apartmentreservations.models.ReservationRequest;
+import com.example.apartmentreservations.models.ResponseForUserReservations;
 import com.example.apartmentreservations.repositories.IReservationRepository;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 
@@ -13,10 +18,13 @@ public class ReservationService implements IReservationService{
 
     private IReservationRepository reservationRepository;
     private final ModelMapper mapper;
+    private RestTemplate restTemplate;
 
-    public ReservationService(IReservationRepository reservationRepository, ModelMapper mapper) {
+
+    public ReservationService(IReservationRepository reservationRepository, ModelMapper mapper, RestTemplate restTemplate) {
         this.reservationRepository = reservationRepository;
         this.mapper = mapper;
+        this.restTemplate = restTemplate;
     }
 
     @Override
@@ -48,10 +56,43 @@ public class ReservationService implements IReservationService{
     }
 
     @Override
-    public ArrayList<Reservation> UserReservations(Integer userId) {
-        List<ReservationEntity> reservationEntities =reservationRepository.UserReservations(userId);
-        var reservations = mapper.map(reservationEntities,new ArrayList<Reservation>().getClass());
+    public List<ResponseForUserReservations> UserReservations(Integer userId) {
 
-        return reservations;
+        List<ReservationEntity> reservationEntities =reservationRepository.UserReservations(userId);
+        List<Integer> apartmentsId = new ArrayList<Integer>();
+        for(ReservationEntity res:reservationEntities){
+            apartmentsId.add(res.getApartmentId());
+        }
+        ReservationRequest reservationRequest = new ReservationRequest();
+        reservationRequest.setId(apartmentsId);
+        ResponseEntity<Apartment[]> apartmentMS=QuestForApartmentMS(reservationRequest);
+        List<ResponseForUserReservations> responseForFront=ResponseForFront(apartmentMS,reservationEntities);
+
+        return responseForFront;
+    }
+
+    @Override
+    public ResponseEntity<Apartment[]> QuestForApartmentMS(ReservationRequest apartmentsId) {
+        String APARTMENT_URL_MS="http://localhost:1313/";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<ReservationRequest> httpEntity=new HttpEntity<ReservationRequest>(apartmentsId,headers);
+        ResponseEntity<Apartment[]> result=(restTemplate.exchange(APARTMENT_URL_MS+"apartment/reservations", HttpMethod.POST,httpEntity,Apartment[].class));
+        return result;
+    }
+
+    @Override
+    public List<ResponseForUserReservations> ResponseForFront(ResponseEntity<Apartment[]> apartments, List<ReservationEntity> reservations) {
+        List<Apartment> apartments1= mapper.map(apartments.getBody(), new ArrayList<Apartment>().getClass());
+        List<ResponseForUserReservations> reservationsResponse = new ArrayList<ResponseForUserReservations>();
+        for(Apartment ap : apartments1){
+            for(ReservationEntity res: reservations){
+                if (ap.getId()==res.getApartmentId()){
+                    ResponseForUserReservations model = new ResponseForUserReservations(ap.getId(),res.getId(),ap.getUserId(),res.getUserId(),ap.getName(),ap.getDescription(),ap.getAdres(),ap.getPricePerNight(),ap.getImages(),res.getStartDay(),res.getEndDay());
+                    reservationsResponse.add(model);
+                }
+            }
+        }
+        return reservationsResponse;
     }
 }

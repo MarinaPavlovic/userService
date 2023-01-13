@@ -1,24 +1,28 @@
 package com.example.apartmentreservations.controllers;
 
+import com.example.apartmentreservations.models.Apartment;
 import com.example.apartmentreservations.models.Reservation;
+import com.example.apartmentreservations.models.ReservationRequest;
+import com.example.apartmentreservations.models.ResponseForUserReservations;
 import com.example.apartmentreservations.services.IReservationService;
-import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("reservations")
 public class ReservationController {
 
+
     private final IReservationService reservationService;
 
-    public ReservationController(IReservationService reservationService) {
+    public ReservationController(RestTemplate restTemplate, IReservationService reservationService) {
         this.reservationService = reservationService;
     }
 
@@ -54,9 +58,11 @@ public class ReservationController {
         reservationService.DeleteReservation(id);
     }
 
-    @GetMapping()
+
+    @GetMapping("user/{id}")
     @CrossOrigin("*")
-    public ArrayList<Reservation> UserReservations (Integer userId){
+    public List<ResponseForUserReservations> UserReservations (@PathVariable("id") Integer userId){
+
         return reservationService.UserReservations(userId);
     }
 

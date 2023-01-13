@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 
@@ -18,7 +19,8 @@ public class UserService implements IUserService , UserDetailsService {
     private final IUserRepository userRepository;
     private final ModelMapper mapper;
 
-    public UserService(IUserRepository userRepository, ModelMapper mapper) {
+
+    public UserService(IUserRepository userRepository, ModelMapper mapper, RestTemplate restTemplate) {
         this.userRepository = userRepository;
         this.mapper = mapper;
     }
