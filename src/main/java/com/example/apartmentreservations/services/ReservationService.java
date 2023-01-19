@@ -1,10 +1,7 @@
 package com.example.apartmentreservations.services;
 
-import com.example.apartmentreservations.models.Apartment;
-import com.example.apartmentreservations.models.Reservation;
+import com.example.apartmentreservations.models.*;
 import com.example.apartmentreservations.entity.ReservationEntity;
-import com.example.apartmentreservations.models.ReservationRequest;
-import com.example.apartmentreservations.models.ResponseForUserReservations;
 import com.example.apartmentreservations.repositories.IReservationRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.*;
@@ -19,12 +16,14 @@ public class ReservationService implements IReservationService{
     private IReservationRepository reservationRepository;
     private final ModelMapper mapper;
     private RestTemplate restTemplate;
+    private IUserService userService;
 
 
-    public ReservationService(IReservationRepository reservationRepository, ModelMapper mapper, RestTemplate restTemplate) {
+    public ReservationService(IReservationRepository reservationRepository, ModelMapper mapper, RestTemplate restTemplate, IUserService userService) {
         this.reservationRepository = reservationRepository;
         this.mapper = mapper;
         this.restTemplate = restTemplate;
+        this.userService = userService;
     }
 
     @Override
@@ -36,7 +35,7 @@ public class ReservationService implements IReservationService{
 
     @Override
     public Reservation EditReservation(Reservation reservation) {
-        ReservationEntity reservationFromDb = new ReservationEntity(reservation.getId(),reservation.getUserId(),reservation.getApartmentId(),reservation.getStartDay(),reservation.getEndDay());
+        ReservationEntity reservationFromDb = new ReservationEntity(reservation.getId(),reservation.getUserId(),reservation.getHostId(),reservation.getApartmentId(),reservation.getStartDay(),reservation.getEndDay());
         reservationRepository.save(reservationFromDb);
         return reservation;
     }
@@ -57,8 +56,14 @@ public class ReservationService implements IReservationService{
 
     @Override
     public List<ResponseForUserReservations> UserReservations(Integer userId) {
+        User user=userService.getUserById(userId);
+        List<ReservationEntity> reservationEntities=new ArrayList<ReservationEntity>();
+        if(user.role.name()=="USER") {
+            reservationEntities = reservationRepository.UserReservations(userId);
+        }else {
+            reservationEntities=reservationRepository.HostReservations(userId);
+        }
 
-        List<ReservationEntity> reservationEntities =reservationRepository.UserReservations(userId);
         List<Integer> apartmentsId = new ArrayList<Integer>();
         for(ReservationEntity res:reservationEntities){
             apartmentsId.add(res.getApartmentId());
@@ -88,7 +93,7 @@ public class ReservationService implements IReservationService{
         for(Apartment ap : apartments1){
             for(ReservationEntity res: reservations){
                 if (ap.getId()==res.getApartmentId()){
-                    ResponseForUserReservations model = new ResponseForUserReservations(ap.getId(),res.getId(),ap.getUserId(),res.getUserId(),ap.getName(),ap.getDescription(),ap.getAdres(),ap.getPricePerNight(),ap.getImages(),res.getStartDay(),res.getEndDay());
+                    ResponseForUserReservations model = new ResponseForUserReservations(ap.getId(),res.getId(),ap.getUserId(),res.getUserId(),ap.getName(),ap.getDescription(),ap.getCountry(),ap.getCity(),ap.getAdres(),ap.getPricePerNight(),ap.getImages(),res.getStartDay(),res.getEndDay());
                     reservationsResponse.add(model);
                 }
             }

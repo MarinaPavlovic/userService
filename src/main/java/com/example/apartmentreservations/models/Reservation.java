@@ -17,6 +17,8 @@ public class Reservation {
     @NotNull
     private Integer userId;
     @NotNull
+    private Integer hostId;
+    @NotNull
     private Integer apartmentId;
     @NotNull
     private Date startDay;

@@ -23,6 +23,12 @@ public class Apartment {
         private String description;
         @NotNull
         @NotBlank
+        private String country;
+        @NotNull
+        @NotBlank
+        private String city;
+        @NotNull
+        @NotBlank
         private String adres;
         @NotNull
         private Double pricePerNight;

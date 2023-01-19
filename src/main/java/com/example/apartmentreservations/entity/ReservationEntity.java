@@ -22,6 +22,9 @@ public class ReservationEntity {
     @Column(name = "user_id")
     private Integer userId;
     @NotNull
+    @Column(name= "host_id")
+    private Integer hostId;
+    @NotNull
     @Column(name = "apartment_id")
     private Integer apartmentId;
     @NotNull
