@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.Column;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -21,7 +22,8 @@ public class Reservation {
     @NotNull
     private Integer apartmentId;
     @NotNull
-    private Date startDay;
+    private LocalDate startDay;
     @NotNull
-    private Date endDay;
+    private LocalDate endDay;
+
 }

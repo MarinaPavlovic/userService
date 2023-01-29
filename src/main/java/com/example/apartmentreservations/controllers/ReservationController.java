@@ -52,9 +52,9 @@ public class ReservationController {
         return new ResponseEntity<Reservation>(reservationService.CreateReservation(reservation), HttpStatus.OK);
     }
 
-    @PostMapping("delete")
+    @DeleteMapping("{id}")
     @CrossOrigin("*")
-    public void DeleteReservation(Integer id){
+    public void DeleteReservation(@PathVariable("id") Integer id){
         reservationService.DeleteReservation(id);
     }
 
@@ -64,6 +64,12 @@ public class ReservationController {
     public List<ResponseForUserReservations> UserReservations (@PathVariable("id") Integer userId){
 
         return reservationService.UserReservations(userId);
+    }
+
+    @GetMapping("apartments/id")
+    @CrossOrigin("*")
+    public List<Integer> ResponseForApartmentMS (){
+        return reservationService.responseForApartmentMS();
     }
 
 

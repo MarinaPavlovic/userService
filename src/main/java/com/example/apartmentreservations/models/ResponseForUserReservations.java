@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -42,7 +43,11 @@ public class ResponseForUserReservations {
     @NotNull
     private List<String> images;
     @NotNull
-    private Date startDay;
+    private LocalDate startDay;
     @NotNull
-    private Date endDay;
+    private LocalDate endDay;
+    @NotNull
+    private long totalDays;
+    @NotNull
+    private double totalPrice;
 }

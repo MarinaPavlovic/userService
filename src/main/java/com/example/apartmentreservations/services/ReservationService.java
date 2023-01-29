@@ -8,7 +8,12 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.Temporal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service()
 public class ReservationService implements IReservationService{
@@ -32,6 +37,7 @@ public class ReservationService implements IReservationService{
         var reservation= mapper.map(reservationFromDb,Reservation.class);
         return Optional.of(reservation);
     }
+
 
     @Override
     public Reservation EditReservation(Reservation reservation) {
@@ -57,7 +63,7 @@ public class ReservationService implements IReservationService{
     @Override
     public List<ResponseForUserReservations> UserReservations(Integer userId) {
         User user=userService.getUserById(userId);
-        List<ReservationEntity> reservationEntities=new ArrayList<ReservationEntity>();
+        List<ReservationEntity>reservationEntities=new ArrayList<ReservationEntity>();
         if(user.role.name()=="USER") {
             reservationEntities = reservationRepository.UserReservations(userId);
         }else {
@@ -90,14 +96,27 @@ public class ReservationService implements IReservationService{
     public List<ResponseForUserReservations> ResponseForFront(ResponseEntity<Apartment[]> apartments, List<ReservationEntity> reservations) {
         List<Apartment> apartments1= mapper.map(apartments.getBody(), new ArrayList<Apartment>().getClass());
         List<ResponseForUserReservations> reservationsResponse = new ArrayList<ResponseForUserReservations>();
-        for(Apartment ap : apartments1){
-            for(ReservationEntity res: reservations){
+        for(ReservationEntity res: reservations){
+            for(Apartment ap : apartments1){
                 if (ap.getId()==res.getApartmentId()){
-                    ResponseForUserReservations model = new ResponseForUserReservations(ap.getId(),res.getId(),ap.getUserId(),res.getUserId(),ap.getName(),ap.getDescription(),ap.getCountry(),ap.getCity(),ap.getAdres(),ap.getPricePerNight(),ap.getImages(),res.getStartDay(),res.getEndDay());
+                    long totalDays= ChronoUnit.DAYS.between(res.getStartDay(),res.getEndDay());
+                    double totalPrice= totalDays*ap.getPricePerNight();
+                    ResponseForUserReservations model = new ResponseForUserReservations(ap.getId(),res.getId(),ap.getUserId(),res.getUserId(),ap.getName(),ap.getDescription(),ap.getCountry(),ap.getCity(),ap.getAdres(),ap.getPricePerNight(),ap.getImages(),res.getStartDay(),res.getEndDay(),totalDays,totalPrice);
                     reservationsResponse.add(model);
                 }
             }
         }
+        reservationsResponse=reservationsResponse.stream().distinct().collect(Collectors.toList());
         return reservationsResponse;
+    }
+
+    @Override
+    public List<Integer> responseForApartmentMS() {
+        List<ReservationEntity> allReservations= reservationRepository.findAll();
+        List<Integer>apartmentsId= new ArrayList<Integer>();
+        for(ReservationEntity res: allReservations){
+            apartmentsId.add(res.getApartmentId());
+        }
+        return  apartmentsId;
     }
 }

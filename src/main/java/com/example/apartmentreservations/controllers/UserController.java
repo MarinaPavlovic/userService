@@ -53,13 +53,15 @@ public class UserController {
         if(result.hasErrors()){
             return new ResponseEntity<String>(result.getAllErrors().toString(), HttpStatus.INTERNAL_SERVER_ERROR);
         }else {
+            user.setPassword(passwordEncoderService.encode(user.getPassword()));
+
             return new ResponseEntity<User>(userService.editUser(id, user), HttpStatus.OK);
         }
     }
 
     @DeleteMapping("{id}")
     @CrossOrigin("*")
-    public void DeleteUser(@PathVariable("id") int id){
+    public void DeleteUser(@PathVariable("id") Integer id){
         userService.deleteUser(id);
     }
 
