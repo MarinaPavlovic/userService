@@ -15,7 +15,7 @@ public interface IReservationRepository extends JpaRepository<ReservationEntity,
     @Query(nativeQuery = true, value = "SELECT * FROM reservation WHERE host_id= :userId")
     List<ReservationEntity> HostReservations (@Param("userId") Integer userId);
 
-    @Query(nativeQuery = true, value = "SELECT * FROM reservation WHERE apartment_id :apartmentId")
+    @Query(nativeQuery = true, value = "SELECT * FROM reservation WHERE apartment_id= :apartmentId")
     List<ReservationEntity> ApartmentReservations (@Param("apartmentId") Integer apartmentId);
 
 

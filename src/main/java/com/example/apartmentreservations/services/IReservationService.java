@@ -20,6 +20,7 @@ public interface IReservationService {
     ResponseEntity<Apartment[]> QuestForApartmentMS (ReservationRequest apartmentsId);
     List<ResponseForUserReservations> ResponseForFront (ResponseEntity<Apartment[]> apartments, List<ReservationEntity> reservations);
     List<Integer> responseForApartmentMS ();
+    List<Reservation> apartmentReservations (Integer id);
 
 
 }

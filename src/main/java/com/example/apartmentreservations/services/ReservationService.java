@@ -8,10 +8,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.time.Duration;
-import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.Temporal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -118,5 +115,12 @@ public class ReservationService implements IReservationService{
             apartmentsId.add(res.getApartmentId());
         }
         return  apartmentsId;
+    }
+
+    @Override
+    public List<Reservation> apartmentReservations(Integer id) {
+        List<ReservationEntity> reservationEntities = reservationRepository.ApartmentReservations(id);
+        List<Reservation> reservations = mapper.map(reservationEntities, new ArrayList<Reservation>().getClass());
+        return reservations;
     }
 }

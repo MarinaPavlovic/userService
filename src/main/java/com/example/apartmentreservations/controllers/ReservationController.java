@@ -1,8 +1,6 @@
 package com.example.apartmentreservations.controllers;
 
-import com.example.apartmentreservations.models.Apartment;
 import com.example.apartmentreservations.models.Reservation;
-import com.example.apartmentreservations.models.ReservationRequest;
 import com.example.apartmentreservations.models.ResponseForUserReservations;
 import com.example.apartmentreservations.services.IReservationService;
 import org.springframework.http.*;
@@ -11,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -70,6 +67,12 @@ public class ReservationController {
     @CrossOrigin("*")
     public List<Integer> ResponseForApartmentMS (){
         return reservationService.responseForApartmentMS();
+    }
+
+    @GetMapping("all/{id}")
+    @CrossOrigin("*")
+    public List<Reservation> getApartmentReservations(@PathVariable("id") Integer apartmentId){
+        return  reservationService.apartmentReservations(apartmentId);
     }
 
 
